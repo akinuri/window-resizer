@@ -3,10 +3,10 @@
 Resize a window to specific dimensions.
 
 ## CLI
-![Screenshot of the CLI window](ss.png)
+![Screenshot of the CLI window](ss-cli.png)
 
 ## GUI
-![Screenshot of the GUI window](ss2.png)
+![Screenshot of the GUI window](ss-gui.png)
 
 ## Roadmap
 - [x] Simple CLI. (2022-02-01)
