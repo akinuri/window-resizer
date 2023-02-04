@@ -13,7 +13,7 @@ Resize a window to specific dimensions.
 - [x] Switch to GUI; list windows along with their current position and size. (2022-02-02)
     - [ ] A refresh button.
     - [ ] Auto refresh, maybe?
-- [x] Add inputs for position and size (and a button to apply). (2022-02-03)
+- [x] Add inputs for position and size (and a button to apply). (2022-02-03/04)
 - [ ] Imitate window operations in the taskbar:
     - [ ] Cascade
     - [ ] Tile
