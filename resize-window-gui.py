@@ -5,6 +5,7 @@ import win32gui
 
 window = tkinter.Tk()
 window.title('Window Resizer')
+window.resizable(False, False)
 style = tkinter.ttk.Style(window)
 style.theme_use('clam')
 
@@ -15,25 +16,23 @@ windows_frame = tkinter.Frame(window)
 
 tree = tkinter.ttk.Treeview(
     windows_frame,
-    columns=('Width', 'Height', "X", "Y"),
+    columns=('Width', 'Height'),
     selectmode="browse",
+    height=8,
 )
 tree.grid(row=1)
 tree.heading('#0', text='Window')
 tree.heading('Width', text='Width')
 tree.heading('Height', text='Height')
-tree.heading('X', text='X')
-tree.heading('Y', text='Y')
 
-tree.column('#0', width=400)
-tree.column('Width', width=100)
-tree.column('Height', width=100)
-tree.column('X', width=50)
-tree.column('Y', width=50)
+tree.column('#0', width=300)
+tree.column('Width', width=50)
+tree.column('Height', width=50)
 
 ignored_windows = [
-    "Program Manager",
+    "Default IME",
     "Microsoft Text Input Application",
+    "Program Manager",
 ]
 def enum_windows(window, extra):
     if win32gui.IsWindowVisible(window):
@@ -43,16 +42,12 @@ def enum_windows(window, extra):
             window_rect = win32gui.GetWindowRect(window_id)
             window = {
                 "title"  : window_text,
-                "x"      : window_rect[0],
-                "y"      : window_rect[1],
                 "width"  : window_rect[2] - window_rect[0],
                 "height" : window_rect[3] - window_rect[1],
             }
             tree.insert('', 'end', text=window_text, values=(
                 window['width'],
                 window['height'],
-                window['x'],
-                window['y'],
             ))
 win32gui.EnumWindows(enum_windows, None)
 
