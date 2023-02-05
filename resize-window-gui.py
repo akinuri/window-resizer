@@ -12,7 +12,6 @@ style.theme_use('clam')
 #region ==================== WINDOWS LIST
 
 windows_frame = tkinter.Frame(window)
-# windows_frame.grid(row=0, column=0)
 
 tree = tkinter.ttk.Treeview(
     windows_frame,
@@ -62,7 +61,7 @@ def tree_click_handler(event):
 
 tree.bind("<ButtonRelease-1>", tree_click_handler)
 
-windows_frame.pack(anchor="w", padx=10, pady=(10, 0))
+windows_frame.pack(anchor="w", padx=10, pady=10)
 
 def get_selected_window():
     selected_item_id = tree.focus()
@@ -77,17 +76,12 @@ def get_selected_window():
 style.configure('padded.TEntry', padding=[5, 3, 5, 3])
 
 size_frame = tkinter.Frame(window)
-# size_frame.grid(row=0, column=0, padx=10, pady=5)
 
-width_label = tkinter.Label(size_frame, text="Width")
-width_label.grid(sticky="W", row=1, column=0, padx=(0, 10))
-width_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry')
-width_input.grid(row=1, column=1, pady=2)
+width_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry', width=6)
+width_input.grid(row=1, column=1, padx=1, pady=2)
 
-height_label = tkinter.Label(size_frame, text="Height")
-height_label.grid(sticky="W", row=2, column=0, padx=(0, 10))
-height_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry')
-height_input.grid(row=2, column=1, pady=2)
+height_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry', width=6)
+height_input.grid(row=1, column=2, padx=1, pady=2)
 
 apply_button = tkinter.Button(
     size_frame,
@@ -174,9 +168,9 @@ def resize_window(window_title, width, height):
 
 apply_button.bind("<ButtonRelease-1>", apply_button_click_handler)
 apply_button["state"] = "disabled"
-apply_button.grid(sticky="e", row=3, columnspan=2, pady=(5, 0))
+apply_button.grid(sticky="e", row=2, column=1, columnspan=2, pady=(5, 0))
 
-size_frame.pack(anchor="e", padx=(0, 10), pady=10)
+size_frame.pack(anchor="e", padx=10, pady=(0, 10))
 
 #endregion
 
