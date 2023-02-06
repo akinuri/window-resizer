@@ -1,7 +1,7 @@
 import tkinter
 import tkinter.ttk
 import tkinter.messagebox
-import win32gui
+from funcs import *
 
 # pip install tk
 # pip install win32gui
@@ -44,27 +44,7 @@ vsb = tkinter.ttk.Scrollbar(windows_frame, orient="vertical", command=treeview.y
 vsb.place(relx=0.95, rely=0, relheight=1, relwidth=0.05)
 treeview.configure(yscrollcommand=vsb.set)
 
-ignored_windows = [
-    "Default IME",
-    "Microsoft Text Input Application",
-    "Program Manager",
-]
-def enum_windows(window, extra):
-    if win32gui.IsWindowVisible(window):
-        window_text = win32gui.GetWindowText(window)
-        if window_text != "" and window_text not in ignored_windows:
-            window_id = win32gui.FindWindowEx(None, None, None, window_text)
-            window_rect = win32gui.GetWindowRect(window_id)
-            window = {
-                "title"  : window_text,
-                "width"  : window_rect[2] - window_rect[0],
-                "height" : window_rect[3] - window_rect[1],
-            }
-            treeview.insert('', 'end', text=window_text, values=(
-                window['width'],
-                window['height'],
-            ))
-win32gui.EnumWindows(enum_windows, None)
+populate_treeview_with_windows(treeview)
 
 def tree_click_handler(event):
     selected_item = get_selected_window()
@@ -117,71 +97,18 @@ def apply_button_click_handler(event):
             title="Warning",
             message="No window selected.\n\nSelect a window before applying size.",
         )
-    width  = width_input.get()
-    height = height_input.get()
-    if width == "":
-        tkinter.messagebox.showwarning(
-            title="Warning",
-            message="The width input box is empty.",
-        )
         return
-    if height == "":
-        tkinter.messagebox.showwarning(
-            title="Warning",
-            message="The height input box is empty.",
-        )
+    if validate_entry_value(width_input, 200, 2000) is False:
         return
-    try:
-        width = int(width)
-    except ValueError:
-        tkinter.messagebox.showwarning(
-            title="Warning",
-            message="The entered value for width is not a number.",
-        )
+    if validate_entry_value(height_input, 200, 2000) is False:
         return
-    try:
-        height = int(height)
-    except ValueError:
-        tkinter.messagebox.showwarning(
-            title="Warning",
-            message="The entered value for height is not a number.",
-        )
-        return
-    if (200 < width < 2000) is False:
-        tkinter.messagebox.showwarning(
-            title="Warning",
-            message="Invalid width.\n\nThe width is out of range: [200, 2000]",
-        )
-        return
-    if (200 < height < 2000) is False:
-        tkinter.messagebox.showwarning(
-            title="Warning",
-            message="Invalid height.\n\nThe width is out of range: [200, 2000]",
-        )
-        return
+    width  = int(width_input.get())
+    height = int(height_input.get())
     resize_window(selected_window["text"], width, height)
     width_input.delete(0, tkinter.END)
     height_input.delete(0, tkinter.END)
     treeview.delete(*treeview.get_children())
-    win32gui.EnumWindows(enum_windows, None)
-
-def resize_window(window_title, width, height):
-    window_id = win32gui.FindWindowEx(None, None, None, window_title)
-    window_rect = win32gui.GetWindowRect(window_id)
-    window_rect2 = {
-        "x"      : window_rect[0],
-        "y"      : window_rect[1],
-        "width"  : window_rect[2] - window_rect[0],
-        "height" : window_rect[3] - window_rect[1],
-    }
-    win32gui.MoveWindow(
-        window_id,
-        window_rect2["x"],
-        window_rect2["y"],
-        width,
-        height,
-        True,
-    )
+    populate_treeview_with_windows(treeview)
 
 apply_button.bind("<ButtonRelease-1>", apply_button_click_handler)
 apply_button["state"] = "disabled"
