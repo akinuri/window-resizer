@@ -3,30 +3,46 @@ import tkinter.ttk
 import tkinter.messagebox
 import win32gui
 
+# pip install tk
+# pip install win32gui
+
+
+#region ==================== APP WINDOW
+
 window = tkinter.Tk()
 window.title('Window Resizer')
 window.resizable(False, False)
 style = tkinter.ttk.Style(window)
 style.theme_use('clam')
 
+#endregion
+
+
 #region ==================== WINDOWS LIST
 
 windows_frame = tkinter.Frame(window)
 
-tree = tkinter.ttk.Treeview(
+treeview = tkinter.ttk.Treeview(
     windows_frame,
-    columns=('Width', 'Height'),
+    columns=('Width', 'Height', 'Scroll'),
     selectmode="browse",
     height=8,
 )
-tree.grid(row=1)
-tree.heading('#0', text='Window')
-tree.heading('Width', text='Width')
-tree.heading('Height', text='Height')
+treeview.grid(row=1)
 
-tree.column('#0', width=300)
-tree.column('Width', width=50)
-tree.column('Height', width=50)
+treeview.heading('#0', text='Window')
+treeview.heading('Width', text='Width')
+treeview.heading('Height', text='Height')
+treeview.heading('Scroll', text='')
+
+treeview.column('#0', width=250)
+treeview.column('Width', width=50)
+treeview.column('Height', width=50)
+treeview.column('Scroll', width=20)
+
+vsb = tkinter.ttk.Scrollbar(windows_frame, orient="vertical", command=treeview.yview)
+vsb.place(relx=0.95, rely=0, relheight=1, relwidth=0.05)
+treeview.configure(yscrollcommand=vsb.set)
 
 ignored_windows = [
     "Default IME",
@@ -44,7 +60,7 @@ def enum_windows(window, extra):
                 "width"  : window_rect[2] - window_rect[0],
                 "height" : window_rect[3] - window_rect[1],
             }
-            tree.insert('', 'end', text=window_text, values=(
+            treeview.insert('', 'end', text=window_text, values=(
                 window['width'],
                 window['height'],
             ))
@@ -59,17 +75,18 @@ def tree_click_handler(event):
         width_input.insert(0, selected_item["values"][0])
         height_input.insert(0, selected_item["values"][1])
 
-tree.bind("<ButtonRelease-1>", tree_click_handler)
+treeview.bind("<ButtonRelease-1>", tree_click_handler)
 
 windows_frame.pack(anchor="w", padx=10, pady=10)
 
 def get_selected_window():
-    selected_item_id = tree.focus()
+    selected_item_id = treeview.focus()
     if selected_item_id == "":
         return None
-    return tree.item(selected_item_id)
+    return treeview.item(selected_item_id)
 
 #endregion
+
 
 #region ==================== SIZE APPLY
 
@@ -145,7 +162,7 @@ def apply_button_click_handler(event):
     resize_window(selected_window["text"], width, height)
     width_input.delete(0, tkinter.END)
     height_input.delete(0, tkinter.END)
-    tree.delete(*tree.get_children())
+    treeview.delete(*treeview.get_children())
     win32gui.EnumWindows(enum_windows, None)
 
 def resize_window(window_title, width, height):
@@ -173,5 +190,6 @@ apply_button.grid(sticky="e", row=2, column=1, columnspan=2, pady=(5, 0))
 size_frame.pack(anchor="e", padx=10, pady=(0, 10))
 
 #endregion
+
 
 window.mainloop()
