@@ -15,6 +15,18 @@ window.resizable(False, False)
 style = tkinter.ttk.Style(window)
 style.theme_use('clam')
 
+def window_click_handler(event):
+    if isinstance(event.widget, tkinter.Tk):
+        for item in treeview.selection():
+            treeview.selection_remove(item)
+        reset_size_inputs(
+            width_input,
+            height_input,
+            apply_button,
+        )
+
+window.bind("<ButtonRelease-1>", window_click_handler)
+
 #endregion
 
 
@@ -46,24 +58,33 @@ treeview.configure(yscrollcommand=vsb.set)
 
 populate_treeview_with_windows(treeview)
 
-def tree_click_handler(event):
-    selected_item = get_selected_window()
-    if selected_item is not None:
-        apply_button["state"] = "normal"
-        width_input.delete(0, tkinter.END)
-        height_input.delete(0, tkinter.END)
+def treeview_click_handler(event):
+    global previous_selected_item
+    selected_item = get_selected_treeview_item(treeview)
+    if selected_item == previous_selected_item:
+        for item in treeview.selection():
+            treeview.selection_remove(item)
+        reset_size_inputs(
+            width_input,
+            height_input,
+            apply_button,
+        )
+        previous_selected_item = None
+    else:
+        reset_size_inputs(
+            width_input,
+            height_input,
+            apply_button,
+        )
         width_input.insert(0, selected_item["values"][0])
         height_input.insert(0, selected_item["values"][1])
+        apply_button["state"] = "normal"
+        previous_selected_item = selected_item
 
-treeview.bind("<ButtonRelease-1>", tree_click_handler)
+previous_selected_item = None
+treeview.bind("<ButtonRelease-1>", treeview_click_handler)
 
 windows_frame.pack(anchor="w", padx=10, pady=10)
-
-def get_selected_window():
-    selected_item_id = treeview.focus()
-    if selected_item_id == "":
-        return None
-    return treeview.item(selected_item_id)
 
 #endregion
 
@@ -77,8 +98,22 @@ size_frame = tkinter.Frame(window)
 width_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry', width=6)
 width_input.grid(row=1, column=1, padx=1, pady=2)
 
+def width_input_key_handler(event):
+    if width_input.get() == "":
+        apply_button["state"] = "disabled"
+    else:
+        apply_button["state"] = "normal"
+width_input.bind("<KeyRelease>", width_input_key_handler)
+
 height_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry', width=6)
 height_input.grid(row=1, column=2, padx=1, pady=2)
+
+def height_input_key_handler(event):
+    if height_input.get() == "":
+        apply_button["state"] = "disabled"
+    else:
+        apply_button["state"] = "normal"
+height_input.bind("<KeyRelease>", height_input_key_handler)
 
 apply_button = tkinter.Button(
     size_frame,
@@ -91,7 +126,7 @@ apply_button = tkinter.Button(
 def apply_button_click_handler(event):
     if event.widget["state"] == "disabled":
         return
-    selected_window = get_selected_window()
+    selected_window = get_selected_treeview_item(treeview)
     if selected_window is None:
         tkinter.messagebox.showwarning(
             title="Warning",
@@ -105,10 +140,7 @@ def apply_button_click_handler(event):
     width  = int(width_input.get())
     height = int(height_input.get())
     resize_window(selected_window["text"], width, height)
-    width_input.delete(0, tkinter.END)
-    height_input.delete(0, tkinter.END)
-    treeview.delete(*treeview.get_children())
-    populate_treeview_with_windows(treeview)
+    treeview.item(get_selected_treeview_item(treeview, True), values=(width, height))
 
 apply_button.bind("<ButtonRelease-1>", apply_button_click_handler)
 apply_button["state"] = "disabled"

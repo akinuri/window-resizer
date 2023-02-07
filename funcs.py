@@ -59,6 +59,16 @@ def populate_treeview_with_windows(treeview):
             window['height'],
         ))
 
+def get_selected_treeview_item(treeview, return_item_id=False):
+    # This returns the last selected item
+    # even though it was deselected with treeview.selection_remove(item)
+    selected_item_id = treeview.focus()
+    if selected_item_id == "":
+        return None
+    if return_item_id:
+        return selected_item_id
+    return treeview.item(selected_item_id)
+
 #endregion
 
 
@@ -113,5 +123,20 @@ def validate_entry_value(entry, min=-math.inf, max=math.inf):
             )
             return False
     return True
+
+#endregion
+
+
+#region ==================== SIZE
+
+def reset_size_inputs(
+    width_input,
+    height_input,
+    apply_button,
+):
+    width_input.delete(0, tkinter.END)
+    height_input.delete(0, tkinter.END)
+    apply_button["state"] = "disabled"
+
 
 #endregion
