@@ -9,6 +9,7 @@ IGNORED_WINDOWS = [
     "Default IME",
     "Microsoft Text Input Application",
     "Program Manager",
+    "Window Resizer",
 ]
 
 def get_window(window_title):
@@ -51,23 +52,45 @@ def resize_window(window_title, width, height):
 
 #region ==================== TREE VIEW
 
-def populate_treeview_with_windows(treeview):
+def find_treeview_item(treeview, text):
+    children = treeview.get_children()
+    for child_id in children:
+        child = treeview.item(child_id)
+        if child["text"] == text:
+            return child_id
+    return None
+
+def clear_closed_windows(treeview, windows, delete_selected_callback=None):
+    children = treeview.get_children()
+    for child_id in children:
+        child = treeview.item(child_id)
+        if child["text"] not in windows:
+            treeview.delete(child_id)
+            if delete_selected_callback:
+                delete_selected_callback()
+
+def populate_treeview_with_windows(treeview, delete_selected_callback=None):
     windows = get_windows()
+    windows_titles = []
     for window in windows:
-        treeview.insert('', 'end', text=window["title"], values=(
-            window['width'],
-            window['height'],
-        ))
+        windows_titles.append(window["title"])
+        item = find_treeview_item(treeview, window["title"])
+        if item:
+            treeview.item(item, values=(window['width'], window['height']))
+        else:
+            treeview.insert('', 'end', text=window["title"], values=(
+                window['width'],
+                window['height'],
+            ))
+    clear_closed_windows(treeview, windows_titles, delete_selected_callback)
 
 def get_selected_treeview_item(treeview, return_item_id=False):
-    # This returns the last selected item
-    # even though it was deselected with treeview.selection_remove(item)
-    selected_item_id = treeview.focus()
-    if selected_item_id == "":
-        return None
+    selected_item_id = (treeview.selection()[0:1] or (None,))[0]
     if return_item_id:
         return selected_item_id
-    return treeview.item(selected_item_id)
+    if selected_item_id:
+        return treeview.item(selected_item_id)
+    return None
 
 #endregion
 

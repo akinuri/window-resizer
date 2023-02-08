@@ -27,6 +27,21 @@ def window_click_handler(event):
 
 window.bind("<ButtonRelease-1>", window_click_handler)
 
+def handle_size_inputs_on_item_delete():
+    reset_size_inputs(
+        width_input,
+        height_input,
+        apply_button,
+    )
+    previous_selected_item = None
+
+windows_refresh_delay = 1000
+def after_tick_handler():
+    populate_treeview_with_windows(treeview, handle_size_inputs_on_item_delete)
+    window.after(windows_refresh_delay, after_tick_handler)
+
+window.after(windows_refresh_delay, after_tick_handler)
+
 #endregion
 
 
@@ -70,7 +85,7 @@ def treeview_click_handler(event):
             apply_button,
         )
         previous_selected_item = None
-    else:
+    elif selected_item:
         reset_size_inputs(
             width_input,
             height_input,
