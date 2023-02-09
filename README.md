@@ -13,4 +13,5 @@ Resize a window to specific dimensions.
 - [x] Switch to GUI; list windows along with their current position and size. (2022-02-02)
     - [x] Auto refresh every second. (2022-02-08)
 - [x] Add inputs for size (and a button to apply). (2022-02-03/04)
-- [ ] Add common sizes for size inputs.
+- [x] Add common sizes for size inputs. (2022-02-09)
+- [ ] Add custom sizes (from text file) for size inputs.

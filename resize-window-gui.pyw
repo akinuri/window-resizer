@@ -17,21 +17,14 @@ style.theme_use('clam')
 
 def window_click_handler(event):
     if isinstance(event.widget, tkinter.Tk):
-        for item in treeview.selection():
-            treeview.selection_remove(item)
-        reset_size_inputs(
-            width_input,
-            height_input,
-            apply_button,
-        )
+        window.focus_set()
 
 window.bind("<ButtonRelease-1>", window_click_handler)
 
 def handle_size_inputs_on_item_delete():
-    reset_size_inputs(
+    set_size_inputs(
         width_input,
         height_input,
-        apply_button,
     )
     previous_selected_item = None
 
@@ -79,22 +72,26 @@ def treeview_click_handler(event):
     if selected_item == previous_selected_item:
         for item in treeview.selection():
             treeview.selection_remove(item)
-        reset_size_inputs(
+        set_size_inputs(
             width_input,
             height_input,
-            apply_button,
         )
         previous_selected_item = None
     elif selected_item:
-        reset_size_inputs(
+        set_size_inputs(
             width_input,
             height_input,
-            apply_button,
+            selected_item["values"][0],
+            selected_item["values"][1],
         )
-        width_input.insert(0, selected_item["values"][0])
-        height_input.insert(0, selected_item["values"][1])
-        apply_button["state"] = "normal"
         previous_selected_item = selected_item
+    listbox.selection_clear(0, tkinter.END)
+    handle_apply_button_state(
+        treeview,
+        width_input,
+        height_input,
+        apply_button,
+    )
 
 previous_selected_item = None
 treeview.bind("<ButtonRelease-1>", treeview_click_handler)
@@ -104,30 +101,102 @@ windows_frame.pack(anchor="w", padx=10, pady=10)
 #endregion
 
 
+#region ==================== BOTTOM FRAME
+
+bottom_frame = tkinter.Frame(window)
+
+def bottom_frame_click_handler(event):
+    if event.widget == bottom_frame:
+        window.focus_set()
+bottom_frame.bind("<ButtonRelease-1>", bottom_frame_click_handler)
+
+#endregion
+
+
+#region ==================== DIMENSIONS
+
+dimensions = [
+    [1920, 1080],
+    [1600, 900],
+    [1536, 864],
+    [1440, 900],
+    [1366, 768],
+    [1280, 720],
+    [1024, 768],
+    [800, 600],
+]
+
+listbox = tkinter.Listbox(
+    bottom_frame,
+    height=len(dimensions),
+    font=('Consolas', 10),
+    width=12,
+)
+
+for index, dimension in enumerate(dimensions):
+    listbox.insert(
+        index + 1,
+        "%s × %s" % (str(dimension[0]).rjust(4, " "), str(dimension[1]))
+    )
+
+def listbox_select_handler(event):
+    selection = event.widget.curselection()
+    width = ""
+    height = ""
+    if selection:
+        index = selection[0]
+        data = event.widget.get(index)
+        dim = data.split(" × ")
+        width = dim[0]
+        height = dim[1]
+    set_size_inputs(
+        width_input,
+        height_input,
+        width,
+        height,
+    )
+    handle_apply_button_state(
+        treeview,
+        width_input,
+        height_input,
+        apply_button,
+    )
+
+listbox.bind("<<ListboxSelect>>", listbox_select_handler)
+
+listbox.pack(side="left")
+
+#endregion
+
+
 #region ==================== SIZE APPLY
 
 style.configure('padded.TEntry', padding=[5, 3, 5, 3])
 
-size_frame = tkinter.Frame(window)
+size_frame = tkinter.Frame(bottom_frame)
 
 width_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry', width=6)
 width_input.grid(row=1, column=1, padx=1, pady=2)
 
 def width_input_key_handler(event):
-    if width_input.get() == "":
-        apply_button["state"] = "disabled"
-    else:
-        apply_button["state"] = "normal"
+    handle_apply_button_state(
+        treeview,
+        width_input,
+        height_input,
+        apply_button,
+    )
 width_input.bind("<KeyRelease>", width_input_key_handler)
 
 height_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry', width=6)
 height_input.grid(row=1, column=2, padx=1, pady=2)
 
 def height_input_key_handler(event):
-    if height_input.get() == "":
-        apply_button["state"] = "disabled"
-    else:
-        apply_button["state"] = "normal"
+    handle_apply_button_state(
+        treeview,
+        width_input,
+        height_input,
+        apply_button,
+    )
 height_input.bind("<KeyRelease>", height_input_key_handler)
 
 apply_button = tkinter.Button(
@@ -158,12 +227,20 @@ def apply_button_click_handler(event):
     treeview.item(get_selected_treeview_item(treeview, True), values=(width, height))
 
 apply_button.bind("<ButtonRelease-1>", apply_button_click_handler)
-apply_button["state"] = "disabled"
-apply_button.grid(sticky="e", row=2, column=1, columnspan=2, pady=(5, 0))
+handle_apply_button_state(
+    treeview,
+    width_input,
+    height_input,
+    apply_button,
+)
+apply_button.grid(sticky="e", row=2, column=1, columnspan=2, pady=(10, 0))
 
-size_frame.pack(anchor="e", padx=10, pady=(0, 10))
+size_frame.pack(anchor="n", side="right", fill="x", padx=(0, 20))
 
 #endregion
+
+
+bottom_frame.pack(side="top", fill="x", padx=10, pady=(0, 10))
 
 
 window.mainloop()

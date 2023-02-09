@@ -152,14 +152,28 @@ def validate_entry_value(entry, min=-math.inf, max=math.inf):
 
 #region ==================== SIZE
 
-def reset_size_inputs(
+def set_size_inputs(
+    width_input,
+    height_input,
+    width_value = "",
+    height_value = "",
+):
+    width_input.delete(0, tkinter.END)
+    height_input.delete(0, tkinter.END)
+    if width_value != "":
+        width_input.insert(0, width_value)
+    if height_value != "":
+        height_input.insert(0, height_value)
+
+def handle_apply_button_state(
+    treeview,
     width_input,
     height_input,
     apply_button,
 ):
-    width_input.delete(0, tkinter.END)
-    height_input.delete(0, tkinter.END)
-    apply_button["state"] = "disabled"
-
+    state = "disabled"
+    if get_selected_treeview_item(treeview) is not None and width_input.get() != "" and height_input.get() != "":
+        state = "normal"
+    apply_button["state"] = state
 
 #endregion
