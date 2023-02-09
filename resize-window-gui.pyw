@@ -17,7 +17,7 @@ style.theme_use('clam')
 
 def window_click_handler(event):
     if isinstance(event.widget, tkinter.Tk):
-        window.focus_set()
+        window.focus()
 
 window.bind("<ButtonRelease-1>", window_click_handler)
 
@@ -105,10 +105,10 @@ windows_frame.pack(anchor="w", padx=10, pady=10)
 
 bottom_frame = tkinter.Frame(window)
 
-def bottom_frame_click_handler(event):
-    if event.widget == bottom_frame:
-        window.focus_set()
-bottom_frame.bind("<ButtonRelease-1>", bottom_frame_click_handler)
+def frame_click_handler(event):
+    if event.widget == bottom_frame or event.widget == size_frame:
+        window.focus()
+bottom_frame.bind("<ButtonRelease-1>", frame_click_handler)
 
 #endregion
 
@@ -131,6 +131,7 @@ listbox = tkinter.Listbox(
     height=len(dimensions),
     font=('Consolas', 10),
     width=12,
+    activestyle="none",
 )
 
 for index, dimension in enumerate(dimensions):
@@ -138,6 +139,10 @@ for index, dimension in enumerate(dimensions):
         index + 1,
         "%s × %s" % (str(dimension[0]).rjust(4, " "), str(dimension[1]))
     )
+
+def listbox_blur_handler():
+    listbox.selection_clear(0, tkinter.END)
+    window.focus()
 
 def listbox_select_handler(event):
     selection = event.widget.curselection()
@@ -149,12 +154,13 @@ def listbox_select_handler(event):
         dim = data.split(" × ")
         width = dim[0]
         height = dim[1]
-    set_size_inputs(
-        width_input,
-        height_input,
-        width,
-        height,
-    )
+        set_size_inputs(
+            width_input,
+            height_input,
+            width,
+            height,
+        )
+        window.after(1000, listbox_blur_handler)
     handle_apply_button_state(
         treeview,
         width_input,
@@ -174,6 +180,8 @@ listbox.pack(side="left")
 style.configure('padded.TEntry', padding=[5, 3, 5, 3])
 
 size_frame = tkinter.Frame(bottom_frame)
+
+size_frame.bind("<ButtonRelease-1>", frame_click_handler)
 
 width_input = tkinter.ttk.Entry(size_frame, style='padded.TEntry', width=6)
 width_input.grid(row=1, column=1, padx=1, pady=2)
