@@ -2,6 +2,8 @@
 
 Resize a window to specific dimensions.
 
+Sometimes, I need to resize a window to specific (smaller) dimensions when working on a large monitor. For example, for better practicality (switching between windows in one screen) or for taking screenshots. Other times, my OCD kicks in :)
+
 ## CLI
 ![Screenshot of the CLI window](ss-cli.png)
 
