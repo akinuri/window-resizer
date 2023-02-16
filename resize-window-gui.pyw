@@ -85,7 +85,8 @@ def treeview_click_handler(event):
             selected_item["values"][1],
         )
         previous_selected_item = selected_item
-    listbox.selection_clear(0, tkinter.END)
+    common_listbox.selection_clear(0, tkinter.END)
+    custom_listbox.selection_clear(0, tkinter.END)
     handle_apply_button_state(
         treeview,
         width_input,
@@ -115,7 +116,9 @@ bottom_frame.bind("<ButtonRelease-1>", frame_click_handler)
 
 #region ==================== DIMENSIONS
 
-dimensions = [
+# dimensions are hard-coded temporarily
+
+common_dimensions = [
     [1920, 1080],
     [1600, 900],
     [1536, 864],
@@ -126,22 +129,34 @@ dimensions = [
     [800, 600],
 ]
 
-listbox = tkinter.Listbox(
+custom_dimensions = [
+    
+]
+
+dimensions_listbox_height = max(len(common_dimensions), len(custom_dimensions))
+
+#endregion
+
+
+#region ==================== COMMON DIMENSIONS
+
+common_listbox = tkinter.Listbox(
     bottom_frame,
-    height=len(dimensions),
+    height=dimensions_listbox_height,
     font=('Consolas', 10),
     width=12,
     activestyle="none",
 )
 
-for index, dimension in enumerate(dimensions):
-    listbox.insert(
+for index, dimension in enumerate(common_dimensions):
+    common_listbox.insert(
         index + 1,
         "%s × %s" % (str(dimension[0]).rjust(4, " "), str(dimension[1]))
     )
 
 def listbox_blur_handler():
-    listbox.selection_clear(0, tkinter.END)
+    common_listbox.selection_clear(0, tkinter.END)
+    custom_listbox.selection_clear(0, tkinter.END)
     window.focus()
 
 def listbox_select_handler(event):
@@ -168,9 +183,32 @@ def listbox_select_handler(event):
         apply_button,
     )
 
-listbox.bind("<<ListboxSelect>>", listbox_select_handler)
+common_listbox.bind("<<ListboxSelect>>", listbox_select_handler)
 
-listbox.pack(side="left")
+common_listbox.pack(side="left")
+
+#endregion
+
+
+#region ==================== CUSTOM DIMENSIONS
+
+custom_listbox = tkinter.Listbox(
+    bottom_frame,
+    height=dimensions_listbox_height,
+    font=('Consolas', 10),
+    width=12,
+    activestyle="none",
+)
+
+for index, dimension in enumerate(custom_dimensions):
+    custom_listbox.insert(
+        index + 1,
+        "%s × %s" % (str(dimension[0]).rjust(4, " "), str(dimension[1]))
+    )
+
+custom_listbox.bind("<<ListboxSelect>>", listbox_select_handler)
+
+custom_listbox.pack(side="left", anchor="n", padx=(10, 0))
 
 #endregion
 
