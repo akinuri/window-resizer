@@ -34,6 +34,7 @@ def get_windows():
                 window = get_window(window_text)
                 windows.append(window)
     win32gui.EnumWindows(enum_windows, None)
+    windows = sorted(windows, key=lambda d: d["title"].lower()) 
     return windows
 
 def resize_window(window_title, width, height):
