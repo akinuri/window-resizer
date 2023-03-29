@@ -1,4 +1,5 @@
 import win32gui
+import win32con
 import math
 import tkinter
 
@@ -15,13 +16,17 @@ IGNORED_WINDOWS = [
 def get_window(window_title):
     window_id   = win32gui.FindWindowEx(None, None, None, window_title)
     window_rect = win32gui.GetWindowRect(window_id)
+    window_placement = win32gui.GetWindowPlacement(window_id)
     window = {
-        "id"     : window_id,
-        "title"  : window_title,
-        "x"      : window_rect[0],
-        "y"      : window_rect[1],
-        "width"  : window_rect[2] - window_rect[0],
-        "height" : window_rect[3] - window_rect[1],
+        "id"        : window_id,
+        "title"     : window_title,
+        "x"         : window_rect[0],
+        "y"         : window_rect[1],
+        "width"     : window_rect[2] - window_rect[0],
+        "height"    : window_rect[3] - window_rect[1],
+        "minimized" : window_placement[1] == win32con.SW_SHOWMINIMIZED,
+        "maximized" : window_placement[1] == win32con.SW_SHOWMAXIMIZED,
+        "normal"    : window_placement[1] == win32con.SW_SHOWNORMAL
     }
     return window
 
@@ -32,7 +37,8 @@ def get_windows():
             window_text = win32gui.GetWindowText(window)
             if window_text != "" and window_text not in IGNORED_WINDOWS:
                 window = get_window(window_text)
-                windows.append(window)
+                if window["normal"]:
+                    windows.append(window)
     win32gui.EnumWindows(enum_windows, None)
     windows = sorted(windows, key=lambda d: d["title"].lower()) 
     return windows
