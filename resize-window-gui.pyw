@@ -22,6 +22,7 @@ def window_click_handler(event):
 window.bind("<ButtonRelease-1>", window_click_handler)
 
 def handle_size_inputs_on_item_delete():
+    global previous_selected_item
     set_size_inputs(
         width_input,
         height_input,
@@ -30,7 +31,8 @@ def handle_size_inputs_on_item_delete():
 
 windows_refresh_delay = 1000
 def after_tick_handler():
-    populate_treeview_with_windows(treeview, handle_size_inputs_on_item_delete)
+    global item_window_map
+    item_window_map = populate_treeview_with_windows(treeview, item_window_map, handle_size_inputs_on_item_delete)
     window.after(windows_refresh_delay, after_tick_handler)
 
 window.after(windows_refresh_delay, after_tick_handler)
@@ -64,7 +66,7 @@ vsb = tkinter.ttk.Scrollbar(windows_frame, orient="vertical", command=treeview.y
 vsb.place(relx=0.95, rely=0, relheight=1, relwidth=0.05)
 treeview.configure(yscrollcommand=vsb.set)
 
-populate_treeview_with_windows(treeview)
+item_window_map = populate_treeview_with_windows(treeview)
 
 def treeview_click_handler(event):
     global previous_selected_item
