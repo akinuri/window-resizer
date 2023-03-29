@@ -101,6 +101,13 @@ def get_selected_treeview_item(treeview, return_item_id=False):
         return treeview.item(selected_item_id)
     return None
 
+def get_selected_window(treeview, item_window_map):
+    window = None
+    item_id = get_selected_treeview_item(treeview, True)
+    if item_id:
+        window = item_window_map.get(item_id, None)
+    return window
+
 #endregion
 
 

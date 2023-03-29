@@ -256,14 +256,18 @@ apply_button = tkinter.Button(
 )
 
 def apply_button_click_handler(event):
+    global item_window_map
     if event.widget["state"] == "disabled":
         return
-    selected_window = get_selected_treeview_item(treeview)
-    if selected_window is None:
+    selected_item = get_selected_treeview_item(treeview)
+    if selected_item is None:
         tkinter.messagebox.showwarning(
             title="Warning",
             message="No window selected.\n\nSelect a window before applying size.",
         )
+        return
+    selected_window = get_selected_window(treeview, item_window_map)
+    if window is None:
         return
     if validate_entry_value(width_input, 200, 2000) is False:
         return
@@ -271,7 +275,7 @@ def apply_button_click_handler(event):
         return
     width  = int(width_input.get())
     height = int(height_input.get())
-    resize_window(selected_window["text"], width, height)
+    resize_window(selected_window["id"], width, height)
     treeview.item(get_selected_treeview_item(treeview, True), values=(width, height))
 
 apply_button.bind("<ButtonRelease-1>", apply_button_click_handler)
